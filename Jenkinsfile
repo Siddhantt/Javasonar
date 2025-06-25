@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_SERVER = 'MySonarQube'
-        DOCKER_HUB_CREDENTIALS = 'dockerhub-creds'
+        SONARQUBE_SERVER = 'MySonarQube' // Jenkins SonarQube server name
+        DOCKER_HUB_CREDENTIALS = 'dockerhub-creds' // Jenkins credential ID
         DOCKER_IMAGE = 'siddhantt271299/javasonar'
     }
 
@@ -34,20 +34,15 @@ pipeline {
             }
         }
 
-        stage('Debug Docker Credentials') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh """
-                        echo "🛠️ DEBUG - Docker Username: \$DOCKER_USER"
-                        echo "🛠️ DEBUG - Docker Password Length: \${#DOCKER_PASS}"
-                    """
-                }
-            }
-        }
-
         stage('Push to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: "${DOCKER_HUB_CREDENTIALS}",
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
                     sh '''
                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                         docker push $DOCKER_IMAGE:latest
@@ -58,11 +53,12 @@ pipeline {
     }
 
     post {
-        failure {
-            echo '❌ Pipeline failed.'
-        }
         success {
             echo '✅ Pipeline completed successfully.'
         }
+        failure {
+            echo '❌ Pipeline failed. Please check logs.'
+        }
     }
 }
+

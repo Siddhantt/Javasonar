@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_SERVER = 'MySonarQube' // Jenkins SonarQube server name
-        DOCKER_HUB_CREDENTIALS = 'dockerhub-creds' // Jenkins credential ID
+        SONARQUBE_SERVER = 'MySonarQube'
+        DOCKER_HUB_CREDENTIALS = 'dockerhub-creds'
         DOCKER_IMAGE = 'siddhant271299/javasonar'
     }
 
@@ -34,31 +34,12 @@ pipeline {
             }
         }
 
-        stage('Push to Docker Hub') {
+        stage('Security Scan - Trivy') {
             steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: "${DOCKER_HUB_CREDENTIALS}",
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_PASS'
-                    )
-                ]) {
-                    sh '''
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker push $DOCKER_IMAGE:latest
-                    '''
-                }
+                sh 'trivy image --exit-code 0 --severity LOW,MEDIUM,HIGH $DOCKER_IMAGE:latest'
             }
         }
-    }
 
-    post {
-        success {
-            echo '✅ Pipeline completed successfully.'
-        }
-        failure {
-            echo '❌ Pipeline failed. Please check logs.'
-        }
-    }
-}
-
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable_]()

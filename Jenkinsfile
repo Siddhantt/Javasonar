@@ -1,8 +1,11 @@
 pipeline {
     agent any
 
-    tools {
-        jdk 'jdk17' // Make sure 'jdk17' is configured in Jenkins → Global Tool Configuration
+    environment {
+        // Docker Hub credentials ID in Jenkins
+        DOCKER_HUB_CREDENTIALS = 'dockerhub-creds'
+        // Docker Hub image name
+        DOCKER_IMAGE = 'siddhantt/javasonar'
     }
 
     stages {
@@ -12,34 +15,42 @@ pipeline {
             }
         }
 
-        stage('Compile Java Files') {
+        stage('Build with Maven') {
             steps {
-                sh 'mkdir -p out && javac -d out $(find . -name "*.java")'
+                sh 'mvn clean package'
             }
         }
 
-        stage('Run App') {
+        stage('SonarQube Analysis') {
             steps {
-                script {
-                    // Run main class (replace with actual if known)
-                    sh 'cd out && java Main' 
+                sh 'sonar-scanner'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t $DOCKER_IMAGE .'
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push $DOCKER_IMAGE
+                    '''
                 }
-            }
-        }
-
-        stage('Archive Class Files') {
-            steps {
-                archiveArtifacts artifacts: 'out/**/*.class', fingerprint: true
             }
         }
     }
 
     post {
         success {
-            echo '✅ Pipeline finished successfully!'
+            echo "✅ Pipeline completed successfully!"
         }
         failure {
-            echo '❌ Pipeline failed. Check the logs.'
+            echo "❌ Pipeline failed. Check logs for details."
         }
     }
 }

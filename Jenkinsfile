@@ -34,6 +34,18 @@ pipeline {
             }
         }
 
+        // 🔍 Debug Stage (Temporary)
+        stage('Debug Docker Credentials') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        echo "🛠️ DEBUG - Docker Username: $DOCKER_USER"
+                        echo "🛠️ DEBUG - Docker Password Length: ${#DOCKER_PASS}"
+                    '''
+                }
+            }
+        }
+
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
@@ -55,3 +67,4 @@ pipeline {
         }
     }
 }
+

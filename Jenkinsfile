@@ -30,18 +30,17 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE .'
+                sh 'docker build -t $DOCKER_IMAGE:latest .'
             }
         }
 
-        // 🔍 Debug Stage (Temporary)
         stage('Debug Docker Credentials') {
             steps {
                 withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh '''
-                        echo "🛠️ DEBUG - Docker Username: $DOCKER_USER"
-                        echo "🛠️ DEBUG - Docker Password Length: ${#DOCKER_PASS}"
-                    '''
+                    sh """
+                        echo "🛠️ DEBUG - Docker Username: \$DOCKER_USER"
+                        echo "🛠️ DEBUG - Docker Password Length: \${#DOCKER_PASS}"
+                    """
                 }
             }
         }
@@ -51,7 +50,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh '''
                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker push $DOCKER_IMAGE
+                        docker push $DOCKER_IMAGE:latest
                     '''
                 }
             }
@@ -60,11 +59,10 @@ pipeline {
 
     post {
         failure {
-            echo 'Pipeline failed.'
+            echo '❌ Pipeline failed.'
         }
         success {
-            echo 'Pipeline completed successfully.'
+            echo '✅ Pipeline completed successfully.'
         }
     }
 }
-

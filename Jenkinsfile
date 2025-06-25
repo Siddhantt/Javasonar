@@ -4,7 +4,7 @@ pipeline {
     environment {
         SONARQUBE_SERVER = 'MySonarQube'
         DOCKER_HUB_CREDENTIALS = 'dockerhub-creds'
-        DOCKER_IMAGE = 'siddhantt/javasonar'
+        DOCKER_IMAGE = 'siddhantt271299/javasonar'
     }
 
     stages {

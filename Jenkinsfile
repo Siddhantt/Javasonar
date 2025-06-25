@@ -2,10 +2,9 @@ pipeline {
     agent any
 
     environment {
-        // Docker Hub credentials ID in Jenkins
-        DOCKER_HUB_CREDENTIALS = 'dockerhub-creds'
-        // Docker Hub image name
-        DOCKER_IMAGE = 'siddhantt/javasonar'
+        SONARQUBE_SERVER = 'MySonarQube'           // SonarQube name in Jenkins → Manage Jenkins → Configure
+        DOCKER_HUB_CREDENTIALS = 'dockerhub-creds' // Jenkins credentials ID for Docker Hub
+        DOCKER_IMAGE = 'siddhantt/javasonar'       // Your Docker Hub repo
     }
 
     stages {
@@ -21,9 +20,11 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('SonarQube Scan') {
             steps {
-                sh 'sonar-scanner'
+                withSonarQubeEnv("${SONARQUBE_SERVER}") {
+                    sh 'mvn sonar:sonar'
+                }
             }
         }
 
@@ -46,11 +47,11 @@ pipeline {
     }
 
     post {
-        success {
-            echo "✅ Pipeline completed successfully!"
-        }
         failure {
-            echo "❌ Pipeline failed. Check logs for details."
+            echo 'Pipeline failed.'
+        }
+        success {
+            echo 'Pipeline completed successfully.'
         }
     }
 }

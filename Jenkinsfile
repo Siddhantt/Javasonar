@@ -2,15 +2,15 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_SERVER = 'MySonarQube'           // SonarQube name in Jenkins → Manage Jenkins → Configure
-        DOCKER_HUB_CREDENTIALS = 'dockerhub-creds' // Jenkins credentials ID for Docker Hub
-        DOCKER_IMAGE = 'siddhantt/javasonar'       // Your Docker Hub repo
+        SONARQUBE_SERVER = 'MySonarQube'
+        DOCKER_HUB_CREDENTIALS = 'dockerhub-creds'
+        DOCKER_IMAGE = 'siddhantt/javasonar'
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/Siddhantt/Javasonar.git'
+                git branch: 'main', url: 'https://github.com/Siddhantt/Javasonar.git'
             }
         }
 

@@ -20,10 +20,10 @@ pipeline {
             }
         }
 
-        stage('SonarQube Scan') {
+        stage('Code Quality - SonarQube') {
             steps {
                 withSonarQubeEnv("${SONARQUBE_SERVER}") {
-                    sh 'mvn sonar:sonar'
+                    sh 'sonar-scanner'
                 }
             }
         }

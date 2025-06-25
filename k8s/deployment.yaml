@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: javasonar-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: javasonar
+  template:
+    metadata:
+      labels:
+        app: javasonar
+    spec:
+      containers:
+      - name: javasonar
+        image: siddhantt/javasonar:latest
+        ports:
+        - containerPort: 8081

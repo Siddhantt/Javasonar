@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: javasonar
-        image: siddhantt/javasonar:latest
+        image: siddhant271299/javasonar:latest
         ports:
         - containerPort: 8081
